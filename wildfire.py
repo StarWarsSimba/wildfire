@@ -8,6 +8,7 @@ import csv
 import config
 
 import graphics.utm_plot
+import random
 
 def make_map() -> graphics.utm_plot.Map:
     """Create and return a basemap display"""
@@ -59,11 +60,47 @@ def plot_points(fire_map: graphics.utm_plot.Map,
         symbols.append(symbol)
     return symbols
 
+def assign_random(points: list[tuple[int, int]], n: int) -> list[list[tuple[int, int]]]:
+    """Returns a list of n lists of coordinate pairs.
+    The i'th list is the points assigned randomly to the i'th cluster.
+    """
+    # Initially the assignments is a list of n empty lists
+    assignments = []
+    for i in range(n):
+        assignments.append([])
+    # Then we randomly assign points to lists
+    for point in points:
+        choice = random.randrange(n)
+        assignments[choice].append(point)
+    return assignments
+
+def centroid(points: list[tuple[int, int]]) -> tuple[int, int]:
+    """The centroid of a set of points is the mean of x and mean of y"""
+    sum_x = 0
+    sum_y = 0
+    for x, y in points:
+        sum_x += x
+        sum_y += y
+    mean_x = sum_x // len(points)
+    mean_y = sum_y // len(points)
+    return mean_x, mean_y
+
+def cluster_centroids(clusters: list[list[tuple[int,int]]]) -> list[tuple[int,int]]:
+    """Return a list containing the centroid corresponding to each assignment of
+    points to a cluster.
+    """
+    centroids = []
+    for cluster in clusters:
+        centroids.append(centroid(cluster))
+    return centroids
+
 def main():
     doctest.testmod()
     fire_map = make_map()
     points = get_fires_utm(config.FIRE_DATA_PATH)
     fire_symbols = plot_points(fire_map, points, color="red")
+    partition = assign_random(points, config.N_CLUSTERS)
+    centroids = cluster_centroids(partition)
     input("Press enter to quit")
 
 if __name__ == "__main__":
