@@ -101,6 +101,8 @@ def main():
     fire_symbols = plot_points(fire_map, points, color="red")
     partition = assign_random(points, config.N_CLUSTERS)
     centroids = cluster_centroids(partition)
+    centroid_symbols = plot_points(fire_map, centroids, size_px=10,
+                                   color="blue")
     input("Press enter to quit")
 
 if __name__ == "__main__":
